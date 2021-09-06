@@ -8,6 +8,7 @@ import numpy as np
 from flask import Flask, request, render_template
 from sklearn.preprocessing import StandardScaler
 import pickle
+from joblib import load
 
 
 # In[ ]:
@@ -30,13 +31,13 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    int_features = [float(x) for x in request.form.values()]
+    int_features = np.array([float(x) for x in request.form.values()])
     #print(int_features)
-    final_features = [np.array(int_features)]
-    #print(type(final_features))
-    sc = StandardScaler()
-    final_features = sc.fit_transform(final_features)
-    prediction = model.predict(final_features)
+    final_features = int_features.reshape(1,-1)
+    print(type(final_features))
+    scalerX = load(open('scaler_X.pkl', 'rb'))
+    final_features_scaled = scalerX.transform(final_features)
+    prediction = model.predict(final_features_scaled)
     #print(type(prediction))
     #print(prediction.shape)
     if prediction.item(0) == 0:
@@ -56,7 +57,3 @@ if __name__ == "__main__":
 
 
 # In[ ]:
-
-
-
-
